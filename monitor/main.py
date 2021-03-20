@@ -1,3 +1,4 @@
+import argparse
 import logging
 import requests
 import schedule
@@ -69,13 +70,17 @@ def _start_event_loops():
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--monitor-config', action='store', dest='monitor_config', type=str)
+    args = parser.parse_args()
+
     # parse config
     c: typing.Tuple[
         typing.List[model.ComponentConfig],
         typing.List[model.SystemConfig]
     ]
     c = config.parse_config_path(
-        config_file='./../monitor-config.yml',
+        config_file=args.monitor_config,
     )
     _schedule_event_loops(
         monitor_config=c,
