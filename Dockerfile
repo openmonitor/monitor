@@ -25,5 +25,4 @@ ENV DBUSER=$DBUSER_ARG
 ENV DBPASSWD=$DBPASSWD_ARG
 ENV DB=$DB_ARG
 ENV PYTHONPATH "/monitor/:/common/common/:/doc/"
-CMD ["tail", "-f", "/dev/null"]
-#ENTRYPOINT ["python3", "monitor/main.py"]
+ENTRYPOINT ["python3", "monitor/main.py"]
