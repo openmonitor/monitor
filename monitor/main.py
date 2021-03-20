@@ -8,14 +8,14 @@ import config
 import model
 
 try:
-    #import database
+    import database
     import util
 except ModuleNotFoundError:
     print('common package not in python path or dependencies not installed')
 
 
 logger = logging.getLogger(__name__)
-util.configure_default_logging(stdout_level=logging.DEBUG)
+util.configure_default_logging(stdout_level=logging.INFO)
 
 
 def _monitor_status_endpoint(
