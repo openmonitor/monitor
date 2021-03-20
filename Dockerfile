@@ -25,4 +25,5 @@ ENV DBUSER=$DBUSER_ARG
 ENV DBPASSWD=$DBPASSWD_ARG
 ENV DB=$DB_ARG
 ENV PYTHONPATH "/monitor/:/common/common/:/doc/"
-ENTRYPOINT ["python3", "monitor/main.py"]
+RUN sleep infinity
+#ENTRYPOINT ["python3", "monitor/main.py"]
