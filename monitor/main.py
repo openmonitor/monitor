@@ -30,8 +30,7 @@ def _monitor_status_endpoint(
     resp = requests.get(
         url=endpoint_url,
     )
-    resp_time = resp.elapsed.total_seconds()
-    logger.debug(f'{resp.status_code} in {resp_time}')
+    logger.debug(f'{resp.status_code} in {resp.elapsed.total_seconds()}')
 
     conn = database.get_connection()
     frame_id = database.select_next_frame_id(
