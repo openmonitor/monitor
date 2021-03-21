@@ -34,7 +34,7 @@ def _monitor_status_endpoint(
     logger.debug(f'{resp.status_code} in {resp_time}')
 
     conn = database.get_connection()
-    frame_id = database.select_frame_id(
+    frame_id = database.select_next_frame_id(
         conn=conn,
         component=component_config.id,
     )
