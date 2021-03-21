@@ -61,7 +61,7 @@ def _parse_response_to_component_frame(
         frame=frame_id,
         timestamp='now()',
         reachable=True if resp.status_code == 200 else False,
-        responseTime=resp.elapsed.total_seconds(),
+        responseTime=resp.elapsed.total_seconds() * 1000,
     )
     return cf
 
