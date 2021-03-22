@@ -1,3 +1,4 @@
+import logging
 import re
 import typing
 
@@ -8,6 +9,9 @@ import model
 
 class ConfigNotOkayException(Exception):
     pass
+
+
+logger = logging.getLogger(__name__)
 
 
 def parse_config_path(
@@ -29,6 +33,7 @@ def parse_config_path(
                     ref=c['ref'],
                     expectedTime=c['expectedTime'],
                     timeout=c['timeout'],
+                    deleteAfter=c['deleteAfter'],
                 )
             )
 
@@ -59,13 +64,56 @@ def _validate_config(
     - component.frequency is a supported interval
     - component.expectedTime is a supported time
     - component.timeout is a supported time
+    - deleteAfter is a supported time
     """
+
+    def _add_timeunits_to_regex(
+            regex_str: str,
+            timeunits: dict,
+    ) -> str:
+        logger.debug(f'regex str in: {regex_str}')
+        logger.debug(f'{timeunits=}')
+        do_open_bracket = True
+        for k, v in timeunits.items():
+            if v:
+                # on first timeunit add, init "("
+                if do_open_bracket:
+                    regex_str = regex_str + '('
+                    do_open_bracket = False
+                # add actual timeunit
+                regex_str = regex_str + k + '|'
+        # after all timeunits were added, remove trailing pipe
+        if regex_str.endswith('|'):
+            regex_str = regex_str.rstrip(regex_str[-1])
+        # close bracket if added at beginning
+        if not do_open_bracket:
+            regex_str = regex_str + ')'
+        logger.debug(f'regex str out: {regex_str}')
+        return regex_str
+
     def _is_supported_time(
         string: str,
         ms=False,
+        s=False,
+        m=False,
+        h=False,
+        d=False,
     ):
+        regex_str = '([1-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9])'
+        timeunits = {
+            'ms': ms,
+            's': s,
+            'm': m,
+            'h': h,
+            'd': d,
+        }
+        regex_str = _add_timeunits_to_regex(
+            regex_str=regex_str,
+            timeunits=timeunits,
+        )
+        logger.debug(f'regex string to check: "{string=}"')
         return re.fullmatch(
-            f'([1-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9])({"ms|" if ms else ""}s|m|h)',
+            regex_str,
             string,
         )
 
@@ -81,6 +129,10 @@ def _validate_config(
     for cf in cfs:
         if not _is_supported_time(
             string=cf,
+            s=True,
+            m=True,
+            h=True,
+            d=True,
         ):
             raise ConfigNotOkayException(f'component frequency {cf} is not in a supported format')
 
@@ -90,6 +142,10 @@ def _validate_config(
         if not _is_supported_time(
             string=cet,
             ms=True,
+            s=True,
+            m=False,
+            h=False,
+            d=False,
         ):
             raise ConfigNotOkayException(f'component expectedTime {cet} is not in a supported format')
 
@@ -99,5 +155,22 @@ def _validate_config(
         if not _is_supported_time(
             string=t,
             ms=True,
+            s=True,
+            m=False,
+            h=False,
+            d=False,
         ):
             raise ConfigNotOkayException(f'component timeout {t} is not in a supported format')
+
+    # component.deleteAfter is a supported time
+    das = [cc.deleteAfter for cc in components]
+    for da in das:
+        if not _is_supported_time(
+            string=da,
+            ms=False,
+            s=False,
+            m=True,
+            h=True,
+            d=True,
+        ):
+            raise ConfigNotOkayException(f'component deleteAfter {da} is not in a supported format')

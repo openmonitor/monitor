@@ -32,15 +32,23 @@ def _monitor_status_endpoint(
     )
     logger.debug(f'{resp.status_code} in {resp.elapsed.total_seconds()}')
 
-    conn = database.get_connection()
     cf = _parse_response_to_component_frame(
         resp=resp,
         component_config=component_config,
     )
+
+    conn = database.get_connection()
+
     database.insert_component_frame(
         conn=conn,
         component_frame=cf,
     )
+
+    _delete_outdated_component_frames(
+        cc=component_config,
+        conn=conn,
+    )
+
     database.kill_connection(
         conn=conn,
     )
@@ -84,6 +92,39 @@ def _schedule_event_loops(
             )
 
 
+def _build_delete_outdated_component_frames_interval(
+    delete_after: str,
+) -> str:
+    interval_translation = {
+        'm': 'minutes',
+        'h': 'hours',
+        'd': 'days',
+    }
+    interval = delete_after[:-1] + ' ' + delete_after[-1]
+    for k, v in interval_translation.items():
+        logger.debug(f'replace on {interval=}, {k=} with {v=}')
+        interval = interval.replace(k, v)
+    return interval
+
+
+def _delete_outdated_component_frames(
+    cc: model.ComponentConfig,
+    conn,
+):
+    interval = _build_delete_outdated_component_frames_interval(
+        delete_after=cc.deleteAfter,
+    )
+    stmt = f'SELECT * FROM componentframe WHERE timestamp < NOW() - INTERVAL \'{interval}\''
+    logger.debug(f'{cc.deleteAfter=}')
+    logger.debug(f'{interval=}')
+    logger.debug(f'{stmt=}')
+    database._execute(
+        conn=conn,
+       statement=stmt,
+       values=(),
+    )
+
+
 def _start_event_loops():
     while True:
         schedule.run_pending()
@@ -93,7 +134,14 @@ def _start_event_loops():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--monitor-config', action='store', dest='monitor_config', type=str)
+    parser.add_argument('--dev', action='store_true', dest='dev')
     args = parser.parse_args()
+
+    if args.dev:
+        util.configure_default_logging(stdout_level=logging.DEBUG)
+        logger.debug('starting in dev mode')
+    else:
+        logger.info('starting in prod mode')
 
     # parse config
     c: typing.Tuple[
