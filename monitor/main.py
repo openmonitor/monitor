@@ -120,8 +120,8 @@ def _delete_outdated_component_frames(
     logger.debug(f'{stmt=}')
     database._execute(
         conn=conn,
-       statement=stmt,
-       values=(),
+        statement=stmt,
+        values=(),
     )
 
 
