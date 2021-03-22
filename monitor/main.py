@@ -114,7 +114,7 @@ def _delete_outdated_component_frames(
     interval = _build_delete_outdated_component_frames_interval(
         delete_after=cc.deleteAfter,
     )
-    stmt = f'SELECT * FROM componentframe WHERE timestamp < NOW() - INTERVAL \'{interval}\''
+    stmt = f'DELETE FROM componentframe WHERE timestamp < NOW() - INTERVAL \'{interval}\''
     logger.debug(f'{cc.deleteAfter=}')
     logger.debug(f'{interval=}')
     logger.debug(f'{stmt=}')
