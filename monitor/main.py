@@ -114,15 +114,16 @@ def _delete_outdated_component_frames(
     interval = _build_delete_outdated_component_frames_interval(
         delete_after=cc.deleteAfter,
     )
-    stmt = f'DELETE FROM componentframe WHERE timestamp < NOW() - INTERVAL \'{interval}\''
+    stmt = 'DELETE FROM componentframe WHERE timestamp < NOW() - INTERVAL %s'
     logger.debug(f'{cc.deleteAfter=}')
     logger.debug(f'{interval=}')
     logger.debug(f'{stmt=}')
     database._execute(
         conn=conn,
         statement=stmt,
-        values=(),
+        values=(interval,),
     )
+    conn.commit()
 
 
 def _start_event_loops():
