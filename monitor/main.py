@@ -4,6 +4,7 @@ import requests
 import schedule
 import time
 import typing
+import urllib3
 
 import config
 import model
@@ -27,15 +28,27 @@ def _monitor_status_endpoint(
         component_config.statusEndpoint,
     )
     logger.info(f'monitoring {endpoint_url}')
-    resp = requests.get(
-        url=endpoint_url,
-    )
-    logger.debug(f'{resp.status_code} in {resp.elapsed.total_seconds()}')
-
-    cf = _parse_response_to_component_frame(
-        resp=resp,
-        component_config=component_config,
-    )
+    try:
+        resp = requests.get(
+            url=endpoint_url,
+            timeout=component_config.timeout,
+        )
+        logger.debug(f'{resp.status_code} in {resp.elapsed.total_seconds()}')
+        cf = _parse_response_to_component_frame(
+            resp=resp,
+            component_config=component_config,
+            timeout=False,
+        )
+    except requests.exceptions.Timeout:
+        logger.warning(f'{endpoint_url} request timed out after {component_config.timeout}')
+        cf = _parse_response_to_component_frame(
+            component_config=component_config,
+        )
+    except (urllib3.exceptions.NewConnectionError, urllib3.exceptions.MaxRetryError):
+        logger.warning(f'{endpoint_url} request failed')
+        cf = _parse_response_to_component_frame(
+            component_config=component_config,
+        )
 
     conn = database.get_connection()
 
@@ -44,7 +57,7 @@ def _monitor_status_endpoint(
         component_frame=cf,
     )
 
-    _delete_outdated_component_frames(
+    database.delete_outdated_component_frames(
         cc=component_config,
         conn=conn,
     )
@@ -55,15 +68,16 @@ def _monitor_status_endpoint(
 
 
 def _parse_response_to_component_frame(
-    resp,
     component_config: model.ComponentConfig,
+    timeout=True,
+    resp=None,
 ) -> model.ComponentFrame:
     cf = model.ComponentFrame(
         component=component_config.id,
         frame=0,
         timestamp='now()',
-        reachable=True if resp.status_code == 200 else False,
-        responseTime=resp.elapsed.total_seconds() * 1000,
+        reachable=False if timeout else True,
+        responseTime=0 if timeout else resp.elapsed.total_seconds() * 1000,
     )
     return cf
 
@@ -90,40 +104,6 @@ def _schedule_event_loops(
                 _monitor_status_endpoint,
                 component_config=c,
             )
-
-
-def _build_delete_outdated_component_frames_interval(
-    delete_after: str,
-) -> str:
-    interval_translation = {
-        'm': 'minutes',
-        'h': 'hours',
-        'd': 'days',
-    }
-    interval = delete_after[:-1] + ' ' + delete_after[-1]
-    for k, v in interval_translation.items():
-        logger.debug(f'replace on {interval=}, {k=} with {v=}')
-        interval = interval.replace(k, v)
-    return interval
-
-
-def _delete_outdated_component_frames(
-    cc: model.ComponentConfig,
-    conn,
-):
-    interval = _build_delete_outdated_component_frames_interval(
-        delete_after=cc.deleteAfter,
-    )
-    stmt = 'DELETE FROM componentframe WHERE timestamp < NOW() - INTERVAL %s'
-    logger.debug(f'{cc.deleteAfter=}')
-    logger.debug(f'{interval=}')
-    logger.debug(f'{stmt=}')
-    database._execute(
-        conn=conn,
-        statement=stmt,
-        values=(interval,),
-    )
-    conn.commit()
 
 
 def _start_event_loops():
