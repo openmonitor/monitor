@@ -190,11 +190,8 @@ def parse_component_config_to_component(
         statusEndpoint=component_config.statusEndpoint,
         system=component_config.systemId,
         ref=component_config.ref,
-        expectedTime=util.strip_time_str_to_int(
-            timeout_str=component_config.expectedTime,
-            ms=True,
-            s=True,
-        ),
+        expectedTime=component_config.expectedTime,
+        timeout=component_config.timeout,
     )
 
 
