@@ -31,7 +31,9 @@ def _monitor_status_endpoint(
     try:
         resp = requests.get(
             url=endpoint_url,
-            timeout=component_config.timeout,
+            timeout=util.strip_timeout_str_to_int(
+                timeout_str=component_config.timeout,
+            ),
         )
         logger.debug(f'{resp.status_code} in {resp.elapsed.total_seconds()}')
         cf = _parse_response_to_component_frame(
