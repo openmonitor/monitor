@@ -31,8 +31,10 @@ def _monitor_status_endpoint(
     try:
         resp = requests.get(
             url=endpoint_url,
-            timeout=util.strip_timeout_str_to_int(
+            timeout=util.strip_time_str_to_int(
                 timeout_str=component_config.timeout,
+                ms=True,
+                s=True,
             ),
         )
         logger.debug(f'{resp.status_code} in {resp.elapsed.total_seconds()}')
@@ -108,6 +110,34 @@ def _schedule_event_loops(
             )
 
 
+def _write_config_to_db(
+    cfg: typing.Tuple[
+        typing.List[model.ComponentConfig],
+        typing.List[model.SystemConfig]
+    ]
+):
+    conn = database.get_connection()
+    for sc in cfg[1]:
+        sys = config.parse_system_config_to_system(
+            system_config=sc,
+        )
+        database.insert_system(
+            conn=conn,
+            system=sys,
+        )
+    for cc in cfg[0]:
+        com = config.parse_component_config_to_component(
+            component_config=cc,
+        )
+        database.insert_component(
+            conn=conn,
+            component=com,
+        )
+    database.kill_connection(
+        conn=conn,
+    )
+
+
 def _start_event_loops():
     while True:
         schedule.run_pending()
@@ -134,6 +164,12 @@ if __name__ == '__main__':
     c = config.parse_config_path(
         config_file=args.monitor_config,
     )
+    
+    _write_config_to_db(
+        cfg=c,
+    )
+
+    # schedule and start actual payload (eventloops for monitoring)
     _schedule_event_loops(
         monitor_config=c,
     )

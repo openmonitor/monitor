@@ -4,7 +4,11 @@ import typing
 
 import yaml
 
-import model
+try:
+    import model
+    import util
+except ModuleNotFoundError:
+    print('common package not in python path or dependencies not installed')
 
 
 class ConfigNotOkayException(Exception):
@@ -174,3 +178,31 @@ def _validate_config(
             d=True,
         ):
             raise ConfigNotOkayException(f'component deleteAfter {da} is not in a supported format')
+
+
+def parse_component_config_to_component(
+    component_config: model.ComponentConfig,
+) -> model.Component:
+    return model.Component(
+        component=component_config.id,
+        name=component_config.name,
+        baseUrl=component_config.baseUrl,
+        statusEndpoint=component_config.statusEndpoint,
+        system=component_config.systemId,
+        ref=component_config.ref,
+        expectedTime=util.strip_time_str_to_int(
+            timeout_str=component_config.expectedTime,
+            ms=True,
+            s=True,
+        ),
+    )
+
+
+def parse_system_config_to_system(
+    system_config: model.SystemConfig,
+) -> model.System:
+    return model.System(
+        system=system_config.id,
+        name=system_config.name,
+        ref=system_config.ref,
+    )
