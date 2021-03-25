@@ -164,7 +164,7 @@ if __name__ == '__main__':
     c = config.parse_config_path(
         config_file=args.monitor_config,
     )
-    
+
     _write_config_to_db(
         cfg=c,
     )
