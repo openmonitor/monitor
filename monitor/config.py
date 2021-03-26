@@ -192,6 +192,7 @@ def parse_component_config_to_component(
         ref=component_config.ref,
         expectedTime=component_config.expectedTime,
         timeout=component_config.timeout,
+        frequency=component_config.frequency,
     )
 
 
