@@ -121,18 +121,38 @@ def _write_config_to_db(
         sys = config.parse_system_config_to_system(
             system_config=sc,
         )
-        database.insert_system(
+        if database.select_system(
             conn=conn,
-            system=sys,
-        )
+            system=sys.system,
+        ):
+            # primary key (component) exists, so entry has to be updated
+            database.update_system(
+                conn=conn,
+                system=sys,
+            )
+        else:
+            database.insert_system(
+                conn=conn,
+                system=sys,
+            )
     for cc in cfg[0]:
         com = config.parse_component_config_to_component(
             component_config=cc,
         )
-        database.insert_component(
+        if database.select_component(
             conn=conn,
-            component=com,
-        )
+            component=com.component,
+        ):
+            # primary key (component) exists, so entry has to be updated
+            database.update_component(
+                conn=conn,
+                component=com,
+            )
+        else:
+            database.insert_component(
+                conn=conn,
+                component=com,
+            )
     database.kill_connection(
         conn=conn,
     )
