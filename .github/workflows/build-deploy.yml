@@ -48,7 +48,7 @@ jobs:
           build-args: |
             DBHOST_ARG=localhost
             DBPORT_ARG=${{ secrets.DB_PORT }}
-            DBUSER_ARG=${{ secrets.DB_USER }}
+            DBUSER_ARG=${{ secrets.DB_USERNAME }}
             DBPASSWD_ARG=${{ secrets.DB_PASSWD }}
             DB_ARG=${{ secrets.DB }}
           context: .
@@ -66,9 +66,10 @@ jobs:
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.ENDPOINT }}
+          host: ${{ secrets.DEPLOY_TARGET }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY_OF_NETCUP }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_KEY_PASSWD }}
           script: |
             sudo docker login https://ghcr.io -u zkdev --password ${{ secrets.ZK_PACKAGE }}
             sudo docker stop openmonitor-monitor
