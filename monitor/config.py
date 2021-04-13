@@ -38,6 +38,7 @@ def parse_config_path(
                     expectedTime=c['expectedTime'],
                     timeout=c['timeout'],
                     deleteAfter=c['deleteAfter'],
+                    authToken=c['authToken'],
                 )
             )
 
@@ -122,53 +123,59 @@ def _validate_config(
         )
 
     # component.system is a valid system
-    sids = [s.id for s in systems]
-    c_sids = [cc.systemId for cc in components]
-    for c_sid in c_sids:
-        if c_sid not in sids:
-            raise ConfigNotOkayException(f'component system "{c_sid}" not found in systems {sids}')
+    # sid = system.id, sid_l = list(system.id)
+    # c_sid = component.systemId, c_sid_l = list(component.systemId)
+    sid_l = [s.id for s in systems]
+    c_sid_l = [cc.systemId for cc in components]
+    for c_sid in c_sid_l:
+        if c_sid not in sid_l:
+            raise ConfigNotOkayException(f'component system "{c_sid}" not found in systems {sid_l}')
 
     # component.frequency is a supported interval
-    cfs = [cc.frequency for cc in components]
-    for cf in cfs:
+    # fe = frequency, fe_l = list(frequency)
+    fe_l = [cc.frequency for cc in components]
+    for fe in fe_l:
         if not _is_supported_time(
-            string=cf,
+            string=fe,
             s=True,
             m=True,
             h=True,
             d=True,
         ):
-            raise ConfigNotOkayException(f'component frequency {cf} is not in a supported format')
+            raise ConfigNotOkayException(f'component frequency {fe} is not in a supported format')
 
     # component.expectedTime is a supported time
-    cets = [cc.expectedTime for cc in components]
-    for cet in cets:
+    # et = expectedTime, et_l = list(expectedTime)
+    et_l = [cc.expectedTime for cc in components]
+    for et in et_l:
         if not _is_supported_time(
-            string=cet,
+            string=et,
             ms=True,
             s=True,
             m=False,
             h=False,
             d=False,
         ):
-            raise ConfigNotOkayException(f'component expectedTime {cet} is not in a supported format')
+            raise ConfigNotOkayException(f'component expectedTime {et} is not in a supported format')
 
     # component.timeout is a supported time
-    ts = [cc.timeout for cc in components]
-    for t in ts:
+    # to = timeout, to_l = list(timeout)
+    to_l = [cc.timeout for cc in components]
+    for to in to_l:
         if not _is_supported_time(
-            string=t,
+            string=to,
             ms=True,
             s=True,
             m=False,
             h=False,
             d=False,
         ):
-            raise ConfigNotOkayException(f'component timeout {t} is not in a supported format')
+            raise ConfigNotOkayException(f'component timeout {to} is not in a supported format')
 
     # component.deleteAfter is a supported time
-    das = [cc.deleteAfter for cc in components]
-    for da in das:
+    # da = deleteAfter, da_l = list(deleteAfter)
+    da_l = [cc.deleteAfter for cc in components]
+    for da in da_l:
         if not _is_supported_time(
             string=da,
             ms=False,
@@ -178,6 +185,13 @@ def _validate_config(
             d=True,
         ):
             raise ConfigNotOkayException(f'component deleteAfter {da} is not in a supported format')
+
+    # authToken length check
+    # at = authToken, at_l = list(authTokens)
+    at_l = [cc.authToken for cc in components]
+    for at in at_l:
+        if at.__len__() is not 32:
+            raise ConfigNotOkayException(f'component authToken {at} is not in a supported format')
 
 
 def parse_component_config_to_component(
@@ -193,6 +207,7 @@ def parse_component_config_to_component(
         expectedTime=component_config.expectedTime,
         timeout=component_config.timeout,
         frequency=component_config.frequency,
+        authToken=component_config.authToken,
     )
 
 
