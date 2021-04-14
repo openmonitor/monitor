@@ -37,11 +37,13 @@ def _monitor_status_endpoint(
                 s=True,
             ),
         )
-        logger.debug(f'{resp.status_code} in {resp.elapsed.total_seconds()}')
+        resp_time_sec = resp.elapsed.total_seconds()
+        logger.debug(f'{resp.status_code} in {resp_time_sec}')
         cf = _parse_response_to_component_frame(
             resp=resp,
             component_config=component_config,
             timeout=False,
+            resp_time_sec=resp_time_sec,
         )
     except requests.exceptions.Timeout:
         logger.warning(f'{endpoint_url} request timed out after {component_config.timeout}')
@@ -75,13 +77,16 @@ def _parse_response_to_component_frame(
     component_config: model.ComponentConfig,
     timeout=True,
     resp=None,
+    resp_time_sec=None,
 ) -> model.ComponentFrame:
+    data = resp.json()
     cf = model.ComponentFrame(
         component=component_config.id,
         frame=0,
         timestamp='now()',
         reachable=False if timeout else True,
-        responseTime=0 if timeout else resp.elapsed.total_seconds() * 1000,
+        responseTime=0 if timeout else resp_time_sec * 1000,
+        cpu=data['cpu'],
     )
     return cf
 
