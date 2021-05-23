@@ -6,20 +6,21 @@ import time
 import typing
 import urllib3
 
-import config
-import model
+import config.factory as cfg_fac
 
 try:
-    import database
-    import util
+    import common.database.factory as db_fac
+    import common.database.operations as db_ops
+    import common.model as model
+    import common.util as commonutil
 except ModuleNotFoundError:
     print('common package not in python path or dependencies not installed')
 
 
 logger = logging.getLogger(__name__)
-util.configure_default_logging(stdout_level=logging.INFO)
+commonutil.configure_default_logging(stdout_level=logging.INFO)
 
-
+"""
 def _monitor_status_endpoint(
     component_config: model.ComponentConfig,
 ):
@@ -168,34 +169,34 @@ def _start_event_loops():
         schedule.run_pending()
         time.sleep(1)
 
+"""
+parser = argparse.ArgumentParser()
+parser.add_argument('--monitor-config', action='store', dest='config_path', type=str)
+parser.add_argument('--dev', action='store_true', dest='dev')
+args = parser.parse_args()
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--monitor-config', action='store', dest='monitor_config', type=str)
-    parser.add_argument('--dev', action='store_true', dest='dev')
-    args = parser.parse_args()
+if args.dev:
+    commonutil.configure_default_logging(stdout_level=logging.DEBUG)
 
-    if args.dev:
-        util.configure_default_logging(stdout_level=logging.DEBUG)
-        logger.debug('starting in dev mode')
-    else:
-        logger.info('starting in prod mode')
+logger.info(f'starting in {"dev" if args.dev else "prod"} mode')
 
-    # parse config
-    c: typing.Tuple[
-        typing.List[model.ComponentConfig],
-        typing.List[model.SystemConfig]
-    ]
-    c = config.parse_config_path(
-        config_file=args.monitor_config,
-    )
+# make config
+cfg_fac = cfg_fac.ConfigFactory()
+cfg = cfg_fac.make_config(config_path=args.config_path)
 
-    _write_config_to_db(
-        cfg=c,
-    )
+# make connection
+conn_fac = db_fac.DatabaseConnectionFactory()
+conn = conn_fac.make_connection()
 
-    # schedule and start actual payload (eventloops for monitoring)
-    _schedule_event_loops(
-        monitor_config=c,
-    )
-    _start_event_loops()
+# write config to database
+db_ops.insert_config(
+    conn=conn,
+    cfg=cfg,
+)
+"""
+# schedule and start actual payload (eventloops for monitoring)
+_schedule_event_loops(
+    monitor_config=c,
+)
+_start_event_loops()
+"""
