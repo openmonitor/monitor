@@ -7,6 +7,7 @@ import urllib3
 
 import config.factory as cfg_fac
 import scheduler.scheduler as scheduler
+import observer.observer as observer
 
 try:
     import common.database.factory as db_fac
@@ -53,6 +54,12 @@ scheduler = scheduler.Scheduler(
 # init event loop
 scheduler.schedule_events()
 
+# make and register observer
+obs = observer.Observer(
+    name='schedule-observer',
+    callback='http://127.0.0.1:1337',
+)
+scheduler.register_observer(observer=obs)
+
 # start event loop
 scheduler.start_event_loop()
-

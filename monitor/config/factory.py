@@ -51,7 +51,7 @@ class ConfigFactory:
                     metrics.append(model.Metric(
                         id=metric.get('name'),
                         endpoint=metric.get('endpoint'),
-                        frequency=util.parse_time_str_to_timedetail(metric.get('frequency') if metric.get('frequency') else '10m'),
+                        frequency=util.parse_time_str_to_timedetail(metric.get('frequency') if metric.get('frequency') else '1m'),
                         expectedTime=util.parse_time_str_to_timedetail(metric.get('expectedTime') if metric.get('expectedTime') else '50ms'),
                         timeout=util.parse_time_str_to_timedetail(metric.get('timeout') if metric.get('timeout') else '200ms'),
                         deleteAfter=util.parse_time_str_to_timedetail(metric.get('deleteAfter') if metric.get('deleteAfter') else '7d'),
