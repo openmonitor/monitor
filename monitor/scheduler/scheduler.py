@@ -105,7 +105,7 @@ class Scheduler:
                 timeout=metric.timeout.as_ms(),
             )
             resp_time_sec = resp.elapsed.total_seconds()
-            if resp.status_code is 200:
+            if resp.status_code == 200:
                 self.logger.debug(f'{resp.status_code} in {resp_time_sec}')
             else:
                 self.logger.warn(f'{endpoint_url}: returned not 200, {resp.status_code=}, still inserting result')
@@ -122,12 +122,12 @@ class Scheduler:
         )
         self.db_ops.insert_result(res=res)
 
+        self.db_ops.delete_outdated_results(
+            component_id=component_id,
+            metric_id=metric.id,
+            delete_after=metric.deleteAfter,
+        )
+
         for obs in self.observer:
             self.logger.info(f'calling observer {obs.name}')
             obs.call_by_post()
-        """
-        database.delete_outdated_component_frames(
-            cc=component_config,
-            conn=conn,
-        )
-        """
