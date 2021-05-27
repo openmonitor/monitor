@@ -6,12 +6,12 @@ import requests
 import urllib3
 import schedule
 
-import observer.observer as observer
 try:
     import common.database.connection
     import common.database.operations
     import common.exceptions as exceptions
     import common.model as model
+    import common.observer as observer
     import common.util as commonutil
 except ModuleNotFoundError:
     print('common package not in python path or dependencies not installed')
