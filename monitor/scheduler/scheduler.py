@@ -25,7 +25,7 @@ class Scheduler:
     ):
         self.logger: logging.Logger = logging.getLogger(__name__)
         self.config: model.Config = cfg
-        self.db_ops: common.database.operations.DatabaseOperations = common.database.operations.DatabaseOperations(connection=conn)
+        self.db_ops: common.database.operations.DatabaseOperator = common.database.operations.DatabaseOperator(connection=conn)
         self.observer: typing.List[observer.Observer] = []
         return
 

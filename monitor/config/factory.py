@@ -7,9 +7,9 @@ import yaml
 try:
     import common.exceptions as exceptions
     import common.model as model
+    import common.util as commonutil
 except ModuleNotFoundError:
     print('common package not in python path or dependencies not installed')
-import config.util as util
 
 
 logger = logging.getLogger(__name__)
@@ -51,10 +51,10 @@ class ConfigFactory:
                     metrics.append(model.Metric(
                         id=metric.get('name'),
                         endpoint=metric.get('endpoint'),
-                        frequency=util.parse_time_str_to_timedetail(metric.get('frequency') if metric.get('frequency') else '1m'),
-                        expectedTime=util.parse_time_str_to_timedetail(metric.get('expectedTime') if metric.get('expectedTime') else '50ms'),
-                        timeout=util.parse_time_str_to_timedetail(metric.get('timeout') if metric.get('timeout') else '200ms'),
-                        deleteAfter=util.parse_time_str_to_timedetail(metric.get('deleteAfter') if metric.get('deleteAfter') else '7d'),
+                        frequency=commonutil.parse_time_str_to_timedetail(metric.get('frequency') if metric.get('frequency') else '1m'),
+                        expectedTime=commonutil.parse_time_str_to_timedetail(metric.get('expectedTime') if metric.get('expectedTime') else '50ms'),
+                        timeout=commonutil.parse_time_str_to_timedetail(metric.get('timeout') if metric.get('timeout') else '200ms'),
+                        deleteAfter=commonutil.parse_time_str_to_timedetail(metric.get('deleteAfter') if metric.get('deleteAfter') else '7d'),
                         authToken=metric.get('authToken') if metric.get('authToken') else component.get('authToken'),
                         baseUrl=metric.get('baseUrl') if metric.get('baseUrl') else component.get('baseUrl'),
                     ))

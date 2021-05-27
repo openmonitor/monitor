@@ -40,7 +40,7 @@ conn_fac = db_fac.DatabaseConnectionFactory()
 conn = conn_fac.make_connection()
 
 # db operations
-db_ops = common.database.operations.DatabaseOperations(connection=conn)
+db_ops = common.database.operations.DatabaseOperator(connection=conn)
 
 # write config to database
 db_ops.insert_config(cfg=cfg)
