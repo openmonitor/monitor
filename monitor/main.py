@@ -7,12 +7,12 @@ import urllib3
 
 import config.factory as cfg_fac
 import scheduler.scheduler as scheduler
-import observer.observer as observer
 
 try:
     import common.database.factory as db_fac
     import common.database.operations
     import common.model as model
+    import common.observer as observer
     import common.util as commonutil
 except ModuleNotFoundError:
     print('common package not in python path or dependencies not installed')
