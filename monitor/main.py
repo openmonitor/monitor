@@ -57,7 +57,7 @@ scheduler.schedule_events()
 # make and register observer
 obs = observer.Observer(
     name='schedule-observer',
-    callback='http://127.0.0.1:1337',
+    callback='monitor-api',
 )
 scheduler.register_observer(observer=obs)
 

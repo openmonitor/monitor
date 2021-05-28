@@ -115,9 +115,6 @@ class Scheduler:
             self.logger.warning(f'{endpoint_url} request failed or timed out')
             timeout=True
 
-        print(f'{resp.text}')
-        return
-
         res = self._parse_result(
             resp=resp,
             timeout=timeout,
