@@ -35,6 +35,7 @@ class ConfigFactory:
 
             # parse metadata
             version = ydata.get('meta').get('schemaVersion')
+            cache_callback = ydata.get('meta').get('cacheCallback')
 
             # parse systems
             for id, system in ydata['systems'].items():
@@ -72,6 +73,7 @@ class ConfigFactory:
             components=components,
             systems=systems,
             version=model.Version(version),
+            cacheCallback=cache_callback,
         )
 
         self._check_semantics(cfg=config)
