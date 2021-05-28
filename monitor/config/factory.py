@@ -68,11 +68,10 @@ class ConfigFactory:
                     metrics=metrics,
                 ))
 
-
         config: model.Config = model.Config(
             components=components,
             systems=systems,
-            version=version,
+            version=model.Version(version),
         )
 
         self._check_semantics(cfg=config)
@@ -98,7 +97,7 @@ class ConfigFactory:
                 for metric in c.metrics:
                     tokens.append(metric.authToken)
             for t in tokens:
-                if t.__len__() is not 32:
+                if t.__len__() != 32:
                     raise exceptions.OpenmonitorConfigError(
                         f'authToken {t} has no length of 32'
                     )

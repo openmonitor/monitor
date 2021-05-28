@@ -1,0 +1,16 @@
+meta:
+  schemaVersion: v2
+components:
+  test-component:
+    name: "test"
+    system: openmonitor
+    baseUrl: http://127.0.0.1:1338
+    ref: https://github.com/openmonitor/test
+    authToken: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    metrics:
+    - name: cpu
+      endpoint: /cpu
+systems:
+  openmonitor:
+    name: OpenMonitor
+    ref: https://github.com/openmonitor

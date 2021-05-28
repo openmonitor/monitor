@@ -98,6 +98,7 @@ class Scheduler:
         self.logger.info(f'monitoring {endpoint_url}')
         res: model.Result
         timeout: bool = False
+        resp = None
 
         try:
             resp = requests.get(
@@ -113,6 +114,9 @@ class Scheduler:
         except (urllib3.exceptions.NewConnectionError, urllib3.exceptions.MaxRetryError, requests.exceptions.Timeout):
             self.logger.warning(f'{endpoint_url} request failed or timed out')
             timeout=True
+
+        print(f'{resp.text}')
+        return
 
         res = self._parse_result(
             resp=resp,

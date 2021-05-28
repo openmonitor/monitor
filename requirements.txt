@@ -1,3 +1,7 @@
 PyYAML
 schedule
 psycopg2-binary==2.8.6
+pytest
+pytest-mock
+pytest-cov
+pytest-docker
