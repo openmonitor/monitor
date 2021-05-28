@@ -24,5 +24,5 @@ ENV DBPORT=$DBPORT_ARG
 ENV DBUSER=$DBUSER_ARG
 ENV DBPASSWD=$DBPASSWD_ARG
 ENV DB=$DB_ARG
-ENV PYTHONPATH "/monitor/:/common/common/:/doc/"
+ENV PYTHONPATH "/monitor/:/common/:/doc/"
 ENTRYPOINT ["python3", "monitor/main.py", "--monitor-config", "doc/monitor-config.yml", "--dev"]
