@@ -1,5 +1,6 @@
 meta:
   schemaVersion: v2
+  cacheCallback: http://monitor-api:8012
 components:
   test-component:
     name: "test"

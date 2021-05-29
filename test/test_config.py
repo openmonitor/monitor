@@ -51,6 +51,7 @@ def test_ok_config():
         components=components,
         systems=systems,
         version=model.Version('v2'),
+        cacheCallback='http://monitor-api:8012',
     )
     assert cfg == cfg_expected
 
